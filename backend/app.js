@@ -31,35 +31,28 @@ app.use((req,res,next)=>{
   next()
 })
 
+
+
+
 app.post("/api/posts", (req,res,next)=>{
   const post=new Post({
     title:req.body.title,
     content:req.body.content
   })
-  console.log(post)
+  post.save()
   res.status(201).json({
     message:"Post added successfully"
   })
 })
 
-app.use("/api/posts",(req,res,next)=>{
-  const posts=[
-    {
-      id:"fdhg5476",
-      title:"1st server-side post",
-      content:"This is coming from the server."
-    },
-    {
-      id:"zuioqwer",
-      title:"2nd server-side post",
-      content:"This is coming from server"
-    }
-  ]
-
-  res.status(200).json({
-    message:"Posts fetched successully",
-    posts:posts
-  })
+app.get("/api/posts",(req,res,next)=>{
+  Post.find()
+    .then(documents=>{
+      res.status(200).json({
+        message:"Posts fetched successully",
+        posts:documents
+      })
+    })
 })
 
 module.exports=app
