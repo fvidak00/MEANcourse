@@ -1,9 +1,24 @@
 const express=require("express")
 const bodyParser=require("body-parser")
+const mongoose=require("mongoose")
+require("dotenv").config()
 
 const Post=require("./models/post")
 
 const app=express()
+
+const connectURI=process.env.DB_URI
+const connectConfig={
+  useNewUrlParser:true,
+  useUnifiedTopology: true
+}
+mongoose.connect(connectURI,connectConfig)
+  .then(()=>{
+    console.log("Connected to database")
+  })
+  .catch(()=>{
+    console.log("Connection failed")
+  })
 
 app.use(bodyParser.json())
 
