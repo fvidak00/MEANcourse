@@ -68,7 +68,7 @@ app.get("/api/posts",(req,res,next)=>{
     })
 })
 
-app.get("/appi/posts/:id",(req,res,next)=>{
+app.get("/api/posts/:id",(req,res,next)=>{
   Post.findById(req.params.id).then(post=>{
     if(post){
       res.status(200).json(post)
