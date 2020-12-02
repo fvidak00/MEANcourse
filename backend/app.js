@@ -12,7 +12,8 @@ const app=express()
 const connectURI=process.env.DB_URI
 const connectConfig={
   useNewUrlParser:true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
+  useCreateIndex:true
 }
 mongoose.connect(connectURI,connectConfig)
   .then(()=>{
