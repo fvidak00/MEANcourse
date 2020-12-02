@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { throwToolbarMixedModesError } from '@angular/material/toolbar';
+import { PageEvent } from '@angular/material/paginator';
 import {Subscription} from "rxjs"
 
 import {Post} from "../post.model"
@@ -13,6 +13,9 @@ import {PostsService} from "../post.service"
 export class PostListComponent implements OnInit, OnDestroy{
   posts:Post[]=[]
   isLoading=false
+  totalPosts=10
+  postPerPage=2
+  pageSizeOptions=[1,2,5,10]
   private postsSub:Subscription
 
   constructor(public postsService:PostsService){
@@ -30,6 +33,10 @@ export class PostListComponent implements OnInit, OnDestroy{
 
   onDelete(postId:string){
     this.postsService.deletePost(postId)
+  }
+
+  onChangedPage(pageData:PageEvent){
+
   }
 
   ngOnDestroy(){
