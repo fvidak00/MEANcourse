@@ -9,11 +9,16 @@ import { AuthData } from './auth-data.model';
 export class AuthService{
   private token:string
   private authStatusListener=new Subject<boolean>()
+  private isAuthenticated=false
 
   constructor(private http:HttpClient){}
 
   getToken(){
     return this.token
+  }
+
+  getIsAuth(){
+    return this.isAuthenticated
   }
 
   getAuthStatusListener(){
@@ -42,7 +47,10 @@ export class AuthService{
       .subscribe(response=>{
         const token=response.token
         this.token=token
-        this.authStatusListener.next(true)
+        if(token){
+          this.isAuthenticated=true
+          this.authStatusListener.next(true)
+        }
       })
   }
 }
