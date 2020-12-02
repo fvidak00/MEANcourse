@@ -5,6 +5,7 @@ require("dotenv").config()
 const path=require("path")
 
 const postsRoutes=require("./routes/posts")
+const userRoutes=require("./routes/user")
 
 const app=express()
 
@@ -35,5 +36,7 @@ app.use((req,res,next)=>{
 })
 
 app.use("/api/posts",postsRoutes)
+app.use("/api/user",userRoutes)
+
 
 module.exports=app
