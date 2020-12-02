@@ -53,6 +53,7 @@ router.post("", multer({storage:storage}).single("image") ,(req,res,next)=>{
   })
 })
 
+
 router.put("/:id", multer({storage:storage}).single("image"), (req,res,next)=>{
   let imagePath=req.body.imagePath
   if(req.file){
@@ -70,8 +71,17 @@ router.put("/:id", multer({storage:storage}).single("image"), (req,res,next)=>{
   })
 })
 
+
 router.get("",(req,res,next)=>{
-  Post.find()
+  const pageSize=+req.query.pageSize
+  const currentPage=req.query.page
+  const postQuery=Post.find()
+  if(pageSize && currentPage){
+    postQuery
+      .skip(pageSize*(currentPage-1))
+      .limit(pageSize)
+  }
+  postQuery.find()
     .then(documents=>{
       res.status(200).json({
         message:"Posts fetched successully",
@@ -90,6 +100,7 @@ router.get("/:id",(req,res,next)=>{
     }
   })
 })
+
 
 router.delete("/:id",(req,res,next)=>{
   Post.deleteOne({_id:req.params.id}).then(result=>{
