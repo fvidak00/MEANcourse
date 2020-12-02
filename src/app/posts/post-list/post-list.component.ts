@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { throwToolbarMixedModesError } from '@angular/material/toolbar';
+import { PageEvent } from '@angular/material/paginator';
 import {Subscription} from "rxjs"
 
 import {Post} from "../post.model"
@@ -13,6 +13,10 @@ import {PostsService} from "../post.service"
 export class PostListComponent implements OnInit, OnDestroy{
   posts:Post[]=[]
   isLoading=false
+  totalPosts=0
+  postsPerPage=2
+  currentPage=1
+  pageSizeOptions=[1,2,5,10]
   private postsSub:Subscription
 
   constructor(public postsService:PostsService){
@@ -20,16 +24,28 @@ export class PostListComponent implements OnInit, OnDestroy{
 
   ngOnInit(){
     this.isLoading=true
-    this.postsService.getPosts()
+    this.postsService.getPosts(this.postsPerPage,this.currentPage)
     this.postsSub=this.postsService.getPostUpdateListener()
-      .subscribe((posts:Post[])=>{
+      .subscribe((postData:{posts:Post[], postCount:number})=>{
         this.isLoading=false
-        this.posts=posts
+        this.totalPosts=postData.postCount
+        this.posts=postData.posts
       })
   }
 
   onDelete(postId:string){
+    this.isLoading=true
     this.postsService.deletePost(postId)
+      .subscribe(()=>{
+        this.postsService.getPosts(this.postsPerPage,this.currentPage)
+      })
+  }
+
+  onChangedPage(pageData:PageEvent){
+    this.isLoading=true
+    this.currentPage=pageData.pageIndex+1
+    this.postsPerPage=pageData.pageSize
+    this.postsService.getPosts(this.postsPerPage,this.currentPage)
   }
 
   ngOnDestroy(){
