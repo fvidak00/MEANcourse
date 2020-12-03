@@ -23,14 +23,16 @@ export class PostsService{
       .pipe(
         map((postData) => {
           return {
-            posts:postData.posts.map(post => {
-              return {
-                title: post.title,
-                content: post.content,
-                id: post._id,
-                imagePath:post.imagePath
-              }
-            }),
+            posts:postData.posts
+              .map(post => {
+                return {
+                  title: post.title,
+                  content: post.content,
+                  id: post._id,
+                  imagePath:post.imagePath,
+                  creator:post.creator
+                }
+              }),
             maxPosts:postData.maxPosts
           }
         })
