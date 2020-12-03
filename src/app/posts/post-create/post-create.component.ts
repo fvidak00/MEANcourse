@@ -119,6 +119,8 @@ export class PostCreateComponent implements OnInit, OnDestroy{
     this.form.reset()
   }
 
+
+
   ngOnDestroy(){
     this.authStatusSub.unsubscribe()
   }
