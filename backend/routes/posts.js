@@ -28,8 +28,7 @@ const storage=multer.diskStorage({
 })
 
 
-router.post(
-  "",
+router.post("",
   checkAuth,
   multer({storage:storage}).single("image"),
   (req,res,next)=>{
@@ -40,26 +39,35 @@ router.post(
       imagePath:url+"/images/"+req.file.filename,
       creator:req.userData.userId
     })
-    post.save().then(createdPost=>{
-      res.status(201).json({
-        message:"Post added successfully",
-        post:{
-          // This:
-          // ...createdPost
-          id:createdPost._id,
-          // Instead of this block
-          title:createdPost.title,
-          content:createdPost.content,
-          imagePath:createdPost.imagePath
-          //
+    post.save()
+      .then(
+        createdPost=>{
+          res.status(201).json({
+            message:"Post added successfully",
+            post:{
+              // This:
+              // ...createdPost
+              id:createdPost._id,
+              // Instead of this block
+              title:createdPost.title,
+              content:createdPost.content,
+              imagePath:createdPost.imagePath
+              //
+            }
+          })
         }
-      })
-    })
+      )
+      .catch(
+        error=>{
+          res.status(500).json({
+            message:"Post creation failed!"
+          })
+        }
+      )
 })
 
 
-router.put(
-  "/:id",
+router.put("/:id",
   checkAuth,
   multer({storage:storage}).single("image"),
   (req,res,next)=>{
@@ -81,78 +89,123 @@ router.put(
       },
       post
     )
-      .then(result=>{
-        if(result.nModified>0){
-          res.status(200).json({
-            message:"Successful edit"
+      .then(
+        result=>{
+          if(result.nModified>0){
+            res.status(200).json({
+              message:"Update successful!"
+            })
+          }
+          else{
+            res.status(401).json({
+              message:"Not authorized!"
+            })
+          }
+        }
+      )
+      .catch(
+        error=>{
+          res.status(500).json({
+            message:"Couldn't update post!"
           })
         }
-        else{
-          res.status(401).json({
-            message:"Not authorized"
-          })
-        }
-      })
+      )
 })
 
 
-router.get("",(req,res,next)=>{
-  const pageSize=+req.query.pagesize
-  const currentPage=req.query.page
-  const postQuery=Post.find()
-  let fetchedPosts
-  if(pageSize && currentPage){
+router.get("",
+  (req,res,next)=>{
+    const pageSize=+req.query.pagesize
+    const currentPage=req.query.page
+    const postQuery=Post.find()
+    let fetchedPosts
+    if(pageSize && currentPage){
+      postQuery
+        .skip(pageSize*(currentPage-1))
+        .limit(pageSize)
+    }
     postQuery
-      .skip(pageSize*(currentPage-1))
-      .limit(pageSize)
+      .then(
+        documents=>{
+          fetchedPosts=documents
+          return Post.countDocuments()
+        }
+      )
+      .then(
+        count=>{
+          res.status(200).json({
+            message:"Posts fetched successully!",
+            posts:fetchedPosts,
+            maxPosts:count
+          })
+        }
+      )
+      .catch(
+        error=>{
+          res.status(500).json({
+            message:"Fetching posts failed!"
+          })
+        }
+      )
   }
-  postQuery
-    .then(documents=>{
-      fetchedPosts=documents
-      return Post.countDocuments()
-    })
-    .then(count=>{
-      res.status(200).json({
-        message:"Posts fetched successully",
-        posts:fetchedPosts,
-        maxPosts:count
-      })
-    })
-})
+)
 
-router.get("/:id",(req,res,next)=>{
-  Post.findById(req.params.id).then(post=>{
-    if(post){
-      res.status(200).json(post)
-    }
-    else{
-      res.status(400).json({message:"post not found"})
-    }
-  })
-})
+router.get("/:id",
+  (req,res,next)=>{
+    Post.findById(req.params.id)
+      .then(
+        post=>{
+          if(post){
+            res.status(200).json(post)
+          }
+          else{
+            res.status(400).json({
+              message:"Post not found!"
+            })
+          }
+        }
+      )
+      .catch(
+        error=>{
+          res.status(500).json({
+            message:"Fetching post failed!"
+          })
+        }
+      )
+  }
+)
 
 
-router.delete(
-  "/:id",
+router.delete("/:id",
   checkAuth,
   (req,res,next)=>{
     Post.deleteOne({
       _id:req.params.id,
       creator:req.userData.userId
     })
-      .then(result=>{
-        if(result.n>0){
-          res.status(200).json({
-            message:"Deletion successful"
+      .then(
+        result=>{
+          if(result.n>0){
+            res.status(200).json({
+              message:"Deletion successful!"
+            })
+          }
+          else{
+            res.status(401).json({
+              message:"Not authorized"
+            })
+          }
+        }
+      )
+      .catch(
+        error=>{
+          res.status(500).json({
+            message:"Fteching posts failed!"
           })
         }
-        else{
-          res.status(401).json({
-            message:"Not authorized"
-          })
-        }
-      })
-})
+      )
+  }
+)
 
 
 module.exports=router
